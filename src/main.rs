@@ -1,10 +1,12 @@
 use actix_web::{get, post, patch, App, HttpResponse, HttpServer, Responder};
-use actix_web::web::{Json, Path};
+use actix_web::web::{Data, Json, Path};
 use validator::Validate;
 use crate::models::{BuyPizzaRequest, UpdatePizzaURL };
+use crate::db::Database;
 
 mod config;
 mod models;
+mod db;
 
 #[get("/pizzas")]
 async fn get_pizzas() -> impl Responder {
@@ -31,8 +33,15 @@ async fn update_pizza(update_pizza_url: Path<UpdatePizzaURL>) -> impl Responder 
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
+
+    // initialize db
+    let db = Database::init().await.expect("Error connecting to database");
+    let db_data = Data::new(db);
+
+    // initialize http server
+    HttpServer::new(move || {
         App::new()
+            .app_data(db_data.clone())
             .service(get_pizzas)
             .service(buy_pizza)
             .service(update_pizza)

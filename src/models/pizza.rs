@@ -12,3 +12,8 @@ pub struct BuyPizzaRequest {
 pub struct UpdatePizzaURL {
     pub uuid: String,
 }
+
+#[derive(Validate, Deserialize, Serialize)]
+pub struct Pizza {
+    
+}

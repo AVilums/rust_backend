@@ -9,8 +9,14 @@ mod models;
 mod db;
 
 #[get("/pizzas")]
-async fn get_pizzas() -> impl Responder {
-    HttpResponse::Ok().body("Pizzas available")
+async fn get_pizzas(db: Data<Database>) -> impl Responder {
+    let pizzas = db.get_all_pizas().await;
+    match pizzas {
+        Some(found_pizzas) =>
+            HttpResponse::Ok().body(format!("{:?}", found_pizzas)),
+        None =>
+            HttpResponse::Unauthorized().body("No pizzas"),
+    }
 }
 
 #[post("/buy_pizza")]

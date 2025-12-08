@@ -1,6 +1,7 @@
 use surrealdb::engine::remote::ws::{Client, Ws};
 use surrealdb::opt::auth::Root;
 use surrealdb::{Error, Surreal};
+use crate::models::pizza::Pizza;
 
 #[derive(Clone)]
 pub struct Database {
@@ -16,7 +17,8 @@ impl Database {
         client.signin(Root {
             username: "user",
             password: "password"
-        }).await?;
+        })
+        .await?;
 
         client.use_ns("surreal").use_db("backend").await?;
 
@@ -26,4 +28,13 @@ impl Database {
             db_name: String::from("backend")
         })
     }
+
+    pub async fn get_all_pizas(&self) -> Option<Vec<Pizza>> {
+        let result = self.client.select("pizza").await;
+        match result {
+            Ok(all_pizzas) => Some(all_pizzas),
+            Err(_) => None,
+        }
+    }
+
 }
